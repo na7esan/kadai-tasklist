@@ -15,6 +15,7 @@
         <div class="container">
             {{-- エラーメッセージ読み込み --}}
             @include('commons.error_tasks')
+            
             @yield('content')
         </div>
 
