@@ -142,9 +142,7 @@ class TasksController extends Controller
         $task = Task::findOrFail($id);
         $task -> status = $request->status;
         $task -> content = $request -> content;
-        if (\Auth::id() === $task->user_id) {
-            $task->delete();
-        }
+        
         if (\Auth::id() === $task->user_id) {
              $task -> save();
         }
