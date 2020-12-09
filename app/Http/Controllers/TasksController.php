@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
+use Illuminate\Support\Facades\Auth;
+
 use App\Task;
 
 class TasksController extends Controller
@@ -16,11 +18,29 @@ class TasksController extends Controller
     // getでtasks/にアクセスされた場合の「一覧表示処理」//要view
     public function index()
     {
-        $tasks = Task::all();
-        // dd($tasks->toArray());
-        return view('tasks.index',[
-            'tasks' => $tasks,
-            ]);
+        $data = [];
+        if (\Auth::check()) { // 認証済みの場合
+            // 認証済みユーザを取得
+            $user = \Auth::user();
+            // ユーザの投稿の一覧を作成日時の降順で取得
+            $tasks = $user->tasks()->orderBy('created_at', 'desc')->paginate(10);
+            //viewに渡すデータを$dataに格納
+            $data = [
+                'user' => $user,
+                'tasks' => $tasks,
+            ];
+        return view('tasks.index',$data);
+
+        } else {
+            
+        // 未ログインの場合はWelcomeを表示
+        return view('welcome');
+        }
+        // $tasks = Task::all();
+        // // dd($tasks->toArray());
+        // return view('tasks.index',[
+        //     'tasks' => $tasks,
+        //     ]);
     }
 
     /**
@@ -56,6 +76,8 @@ class TasksController extends Controller
         $task = new Task;
         $task->status = $request->status;
         $task->content = $request->content;
+        //dd($request->all());
+        $task->user_id = Auth::user()->id;
         $task->save();
         
         return redirect('/');
